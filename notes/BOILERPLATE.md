@@ -1,3 +1,14 @@
+## Introduction
+
+In electron, the frontend or the UI of the electron application uses html, css and javascript. Electron uses chromium to render the interface. An electron app also needs a backend server where the app files are executed. For the backend it uses NodeJS.
+This process has the access to all the system APIs and it’s executed in the NodeJS.
+
+Generally frontend and backend communication happens through REST APIs in a Full Stack project. But in Electron app, this communication happens through a module called IPC - Inter Process Communication.
+
+In an electron app, the frontend is called the ‘Renderer Process’ and the backend is called the ‘Main Process’. They both are separate processes.
+
+## Starting the app
+
 The first thing to do is to create a nodejs app where it has a `package.json` file.<br>
 Obviously an electron app's first requirement is to install the `electron` package:<br>
 

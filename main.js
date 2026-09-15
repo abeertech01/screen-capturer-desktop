@@ -7,6 +7,7 @@ const {
   shell,
   Tray,
   nativeImage,
+  Menu,
 } = require("electron")
 const path = require("node:path")
 const fs = require("node:fs")
@@ -16,10 +17,12 @@ const appIcon = nativeImage.createFromPath(
   path.join(__dirname, "assets/camera.png"),
 )
 
-// Resize the single high-res source icon down to whatever size a given UI spot needs
-function getIcon(size) {
+// Resize the single high-res source icon down to whatever size a given UI spot needs.
+// `template: true` marks it as a macOS template image (auto-tinted mono icon) - only
+// appropriate for the tray, not the Dock/window icon, which should stay full color.
+function getIcon(size, { template = false } = {}) {
   const icon = appIcon.resize({ width: size, height: size, quality: "best" })
-  if (process.platform === "darwin") {
+  if (template && process.platform === "darwin") {
     icon.setTemplateImage(true)
   }
   return icon
@@ -27,6 +30,11 @@ function getIcon(size) {
 
 // Is the app ready and initialized ? Show the app window
 app.whenReady().then(() => {
+  // BrowserWindow's `icon` option doesn't drive the macOS Dock icon in dev mode - set it explicitly
+  if (process.platform === "darwin") {
+    app.dock.setIcon(getIcon(512))
+  }
+
   const window = new BrowserWindow({
     webPreferences: {
       contextIsolation: false,
@@ -37,7 +45,9 @@ app.whenReady().then(() => {
     show: false,
     icon: getIcon(256),
   })
-  const tray = new Tray(getIcon(process.platform === "darwin" ? 22 : 16))
+  const tray = new Tray(
+    getIcon(process.platform === "darwin" ? 22 : 16, { template: true }),
+  )
   tray.on("click", () => {
     if (window.isVisible()) {
       window.hide()
@@ -45,6 +55,17 @@ app.whenReady().then(() => {
       window.show()
     }
   })
+
+  const menuTemplate = [
+    {
+      label: "Quit",
+      click: () => {
+        app.quit()
+      },
+    },
+  ]
+  const contextMenu = Menu.buildFromTemplate(menuTemplate)
+  tray.setContextMenu(contextMenu)
 
   window.loadFile("index.html")
 

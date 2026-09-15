@@ -17,6 +17,9 @@
     ],
     "directories": {
       "output": "dist"
+    },
+    "mac": {
+      "icon": "assets/camera.icns"
     }
   },
   "keywords": [],
